@@ -1,0 +1,11 @@
+streamlit
+pandas
+langchain
+langchain-community
+langchain-groq
+langchain-google-genai
+faiss-cpu
+plotly
+python-dotenv
+pillow
+google-generativeai
