@@ -251,7 +251,7 @@ if st.button("Evaluate Project 🚀", type="primary"):
             # Top Level Score
             score_col1, score_col2 = st.columns([1, 2])
             with score_col1:
-                st.metric(label="Total Score (S_total)", value=f"{results['S_total']} / 10")
+                st.metric(label="Total Score (S_total)", value=f"{results['S_total']:.1f} / 10")
                 if results['S_total'] >= 8.5:
                     st.success("Potential Winner! 🏆")
                 elif results['S_total'] >= 6.0:
