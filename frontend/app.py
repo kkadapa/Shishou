@@ -140,20 +140,29 @@ st.markdown("""
         border: 1px solid #E0E0E0 !important;
     }
     
-    /* Expander */
-    .streamlit-expanderHeader {
-        background-color: rgba(255, 255, 255, 0.6) !important; /* Force light background */
-        border-radius: 8px;
+    /* Expander - Aggressive Override */
+    div[data-testid="stExpander"] details > summary {
+        background-color: rgba(255, 255, 255, 0.6) !important;
+        border-radius: 8px !important;
         color: #1A1A1A !important;
     }
-    .streamlit-expanderHeader p, 
-    .streamlit-expanderHeader span, 
-    .streamlit-expanderHeader svg {
+    div[data-testid="stExpander"] details[open] > summary {
+        background-color: rgba(255, 255, 255, 0.8) !important;
         color: #1A1A1A !important;
-        fill: #1A1A1A !important;
     }
-    .streamlit-expanderHeader:hover {
+    div[data-testid="stExpander"] details > summary:hover {
         background-color: rgba(255, 255, 255, 0.9) !important;
+        color: #1A1A1A !important;
+    }
+    
+    /* Force internal text/icons to be dark */
+    div[data-testid="stExpander"] details > summary p,
+    div[data-testid="stExpander"] details > summary span,
+    div[data-testid="stExpander"] details > summary div {
+        color: #1A1A1A !important;
+    }
+    div[data-testid="stExpander"] details > summary svg {
+        fill: #1A1A1A !important;
         color: #1A1A1A !important;
     }
     
