@@ -1,6 +1,6 @@
-# 🏆 Hackalytics: AI Project Judge
+# 🤖 Shishou: AI Project Judge
 
-Hackalytics is an intelligent hackathon assistant that evaluates project ideas against thousands of past hackathon winners. It uses a multi-modal approach to score projects on **Novelty**, **Technical Complexity**, **Viability**, and **Design**.
+Shishou is an intelligent hackathon assistant that evaluates project ideas against thousands of past hackathon winners. It uses a multi-modal approach to score projects on **Novelty**, **Technical Complexity**, **Viability**, and **Design**.
 
 ## ✨ Features
 

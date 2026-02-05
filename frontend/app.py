@@ -16,7 +16,7 @@ load_dotenv()
 
 # --- CONFIGURATION ---
 st.set_page_config(
-    page_title="Hackalytics",
+    page_title="Shishou",
     page_icon="🤖",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -184,6 +184,7 @@ with st.sidebar:
     
     st.markdown("---")
     st.markdown("### PROTOCOL")
+    st.title("Shishou Config") 
     st.info("Scanning for Novelty, Tech Stack, and Visual Patterns.")
 
 # Render Hero
@@ -196,7 +197,7 @@ try:
 except FileNotFoundError:
     st.warning("⚠️ Asset missing: robotic_face.png")
 
-st.markdown("<h1 style='text-align: center; color: white;'>HACKALYTICS_V2.0</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: white;'>SHISHOU_V1.0</h1>", unsafe_allow_html=True)
 st.markdown("<p style='text-align: center; color: #00F2FF; letter-spacing: 4px; font-family: Orbitron;'>AI JUDGEMENT SYSTEM_ONLINE</p>", unsafe_allow_html=True)
 
 col1, col2 = st.columns([1, 1])
