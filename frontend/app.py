@@ -14,211 +14,203 @@ from dotenv import load_dotenv
 # Load env vars
 load_dotenv()
 
-# Page Configuration
+# --- CONFIGURATION ---
 st.set_page_config(
-    page_title="Hackalytics - AI Hackathon Judge",
-    page_icon="🏆",
-    layout="wide"
+    page_title="Hackalytics",
+    page_icon="🤖",
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
-# Custom Theme (Organic Glassmorphism - Polished)
+# --- CSS: ROBOTIC CYBERPUNK THEME ---
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
-    
-    html, body, [class*="css"] {
-        font-family: 'Inter', sans-serif;
-        color: #1A1A1A; /* Force dark text globally */
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Roboto+Mono:wght@300;400;700&display=swap');
+
+    /* BACKGROUND & GLOBAL VARIABLES */
+    :root {
+        --neon-cyan: #00F2FF;
+        --neon-magenta: #FF00E5;
+        --dark-bg: #050505;
+        --grid-line: rgba(0, 242, 255, 0.1);
+        --glass-bg: rgba(5, 5, 5, 0.7);
     }
 
-    /* Organic Background */
     .stApp {
-        background-color: #EBE0D6;
+        background-color: var(--dark-bg);
         background-image: 
-            radial-gradient(at 0% 0%, rgba(244, 176, 164, 0.4) 0px, transparent 50%),
-            radial-gradient(at 100% 0%, rgba(142, 169, 219, 0.4) 0px, transparent 50%),
-            radial-gradient(at 100% 100%, rgba(168, 208, 141, 0.4) 0px, transparent 50%);
-        color: #1A1A1A;
+            linear-gradient(var(--grid-line) 1px, transparent 1px),
+            linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+        background-size: 40px 40px;
+        background-position: center center;
+        font-family: 'Roboto Mono', monospace;
+        color: #E0E0E0;
     }
     
-    /* Transparent Header */
-    header[data-testid="stHeader"], .stApp > header {
-        background-color: transparent !important;
+    h1, h2, h3 {
+        font-family: 'Orbitron', sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: white;
+        text-shadow: 0 0 10px var(--neon-cyan);
     }
 
-    /* Labels & Headers - Force Dark Check */
-    .stTextInput label, .stTextArea label, .stFileUploader label, label, p, h1, h2, h3, h4, 
-    .stMarkdown, [data-testid="stMetricLabel"] {
-        color: #1A1A1A !important;
+    /* ROBOTIC FACE ANIMATION */
+    @keyframes flash {
+        0% { filter: brightness(1) drop-shadow(0 0 5px var(--neon-cyan)); opacity: 0.9; }
+        5% { filter: brightness(1.5) drop-shadow(0 0 15px var(--neon-cyan)); opacity: 1; }
+        10% { filter: brightness(1) drop-shadow(0 0 5px var(--neon-cyan)); opacity: 0.9; }
+        15% { filter: brightness(1.2) drop-shadow(0 0 10px var(--neon-cyan)); opacity: 1; }
+        50% { filter: brightness(1) drop-shadow(0 0 5px var(--neon-cyan)); opacity: 0.8; }
+        52% { opacity: 0.4; }
+        54% { opacity: 0.8; }
+        100% { filter: brightness(1) drop-shadow(0 0 5px var(--neon-cyan)); opacity: 0.9; }
+    }
+    
+    .robotic-hero {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        width: 180px;
+        animation: flash 4s infinite linear;
     }
 
-    /* Glass Sidebar */
-    [data-testid="stSidebar"] {
-        background-color: rgba(255, 255, 255, 0.5);
-        backdrop-filter: blur(25px);
-        border-right: 1px solid rgba(255, 255, 255, 0.6);
+    /* SIDEBAR */
+    section[data-testid="stSidebar"] {
+        background-color: #0A0A0A;
+        border-right: 1px solid var(--neon-cyan);
     }
     [data-testid="stSidebar"] p, [data-testid="stSidebar"] span {
-         color: #1A1A1A !important;
-    }
-    
-    /* Inputs & Textareas */
-    .stTextInput > div > div > input, 
-    .stTextArea > div > div > textarea {
-        background-color: rgba(255, 255, 255, 0.9) !important; /* Lighter background */
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 12px;
-        color: #1A1A1A !important; /* Dark text in inputs */
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    }
-    .stTextInput > div > div > input::placeholder, 
-    .stTextArea > div > div > textarea::placeholder {
-        color: #666666 !important;
-    }
-    
-    /* Focus State */
-    .stTextInput > div > div > input:focus, 
-    .stTextArea > div > div > textarea:focus {
-        border: 1px solid #A8D08D;
-        box-shadow: 0 0 0 2px rgba(168, 208, 141, 0.2);
-        caret-color: #1A1A1A; /* Fix invisible cursor */
-    }
-    
-    /* Input General State - ensure caret is always dark */
-    .stTextInput input, .stTextArea textarea {
-        caret-color: #1A1A1A !important;
+         color: #E0E0E0 !important;
     }
 
-    /* Buttons */
-    .stButton > button {
-        background: linear-gradient(135deg, #A8D08D 0%, #8EA9DB 100%);
-        color: #1A1A1A !important;
-        border: none;
-        border-radius: 30px;
-        font-weight: 800;
-        padding: 0.7rem 2.5rem;
+    /* INPUTS */
+    .stTextInput > div > div > input, 
+    .stTextArea > div > div > textarea {
+        background-color: rgba(0, 0, 0, 0.5);
+        border: 1px solid #333;
+        color: var(--neon-cyan);
+        font-family: 'Roboto Mono', monospace;
+        caret-color: var(--neon-magenta) !important;
         transition: all 0.3s ease;
-        box-shadow: 0 8px 15px rgba(168, 208, 141, 0.4);
+    }
+    .stTextInput > div > div > input:focus, 
+    .stTextArea > div > div > textarea:focus {
+        border-color: var(--neon-cyan);
+        box-shadow: 0 0 10px rgba(0, 242, 255, 0.3);
+        color: white;
+    }
+
+    /* BUTTONS */
+    .stButton > button {
+        background: linear-gradient(45deg, #00C2CC, #00F2FF);
+        color: #000;
+        font-family: 'Orbitron', sans-serif;
+        font-weight: bold;
+        border: none;
+        border-radius: 0;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 1px;
+        transition: transform 0.2s, box-shadow 0.2s;
     }
     .stButton > button:hover {
-        background: linear-gradient(135deg, #97C07C 0%, #7D98CA 100%);
-        transform: translateY(-2px);
-        box-shadow: 0 12px 20px rgba(168, 208, 141, 0.6);
-        color: #000000 !important;
+        transform: scale(1.05);
+        box-shadow: 0 0 20px var(--neon-cyan);
+        color: #000;
     }
-    
-    /* File Uploader - Fix Dark Background & Text */
+
+    /* EXPANDERS */
+    .streamlit-expanderHeader {
+        background-color: rgba(10, 10, 10, 0.8) !important;
+        border: 1px solid var(--neon-cyan) !important;
+        border-radius: 4px;
+        color: var(--neon-cyan) !important;
+        font-family: 'Orbitron', sans-serif;
+    }
+    .streamlit-expanderHeader:hover {
+        background-color: rgba(0, 242, 255, 0.1) !important;
+        color: white !important;
+    }
+    div[data-testid="stExpander"] details > summary p,
+    div[data-testid="stExpander"] details > summary span,
+    div[data-testid="stExpander"] details > summary svg {
+        color: var(--neon-cyan) !important;
+        fill: var(--neon-cyan) !important;
+    }
+
+    /* DRAG & DROP */
     [data-testid="stFileUploader"] {
-        background-color: rgba(255, 255, 255, 0.6);
-        border-radius: 16px;
-        padding: 0; 
+        border: 1px dashed var(--neon-cyan);
+        background-color: rgba(0, 242, 255, 0.05);
+        padding: 20px;
     }
-    [data-testid="stFileUploader"] section {
-        background-color: transparent !important; /* Remove internal dark block */
-    }
-    [data-testid="stFileUploader"] div[data-testid="stFileUploaderDropzone"] {
-        background-color: rgba(255, 255, 255, 0.6) !important;
-        color: #1A1A1A !important;
-        border: 1px dashed #A8D08D;
-        border-radius: 12px;
-    }
-    /* Force text color in dropzone */
+    /* File Uploader Text */
     [data-testid="stFileUploaderDropzone"] div, 
     [data-testid="stFileUploaderDropzone"] span, 
     [data-testid="stFileUploaderDropzone"] small {
-        color: #1A1A1A !important;
+        color: #E0E0E0 !important;
     }
-    [data-testid="stFileUploaderDropzone"] svg {
-        fill: #1A1A1A !important;
-    }
-    /* Small Button inside uploader */
-    [data-testid="stFileUploader"] button {
-        background-color: #FFFFFF !important;
-        color: #1A1A1A !important;
-        border: 1px solid #E0E0E0 !important;
-    }
-    
-    /* Expander - Aggressive Override */
-    div[data-testid="stExpander"] details > summary {
-        background-color: rgba(255, 255, 255, 0.6) !important;
-        border-radius: 8px !important;
-        color: #1A1A1A !important;
-    }
-    div[data-testid="stExpander"] details[open] > summary {
-        background-color: rgba(255, 255, 255, 0.8) !important;
-        color: #1A1A1A !important;
-    }
-    div[data-testid="stExpander"] details > summary:hover {
-        background-color: rgba(255, 255, 255, 0.9) !important;
-        color: #1A1A1A !important;
-    }
-    
-    /* Force internal text/icons to be dark */
-    div[data-testid="stExpander"] details > summary p,
-    div[data-testid="stExpander"] details > summary span,
-    div[data-testid="stExpander"] details > summary div {
-        color: #1A1A1A !important;
-    }
-    div[data-testid="stExpander"] details > summary svg {
-        fill: #1A1A1A !important;
-        color: #1A1A1A !important;
-    }
-    
-    /* Metric Value */
-    [data-testid="stMetricValue"] {
-        color: #1A1A1A !important;
-    }
-    
-    /* Success/Error/Info Messages */
-    .stAlert {
-        background-color: rgba(255, 255, 255, 0.8) !important;
-        color: #1A1A1A !important;
-        border-radius: 12px;
-        border: 1px solid rgba(255,255,255,0.5);
-    }
-    .stAlert p {
-        color: #1A1A1A !important;
+
+    /* ALERTS */
+     div[data-baseweb="alert"] {
+         border-radius: 0;
+         background-color: rgba(0, 0, 0, 0.8);
+         border: 1px solid var(--neon-cyan);
+         color: white;
     }
 </style>
 """, unsafe_allow_html=True)
 
+# Helper for image encoding
+import base64
+def get_base64_of_bin_file(bin_file):
+    with open(bin_file, 'rb') as f:
+        data = f.read()
+    return base64.b64encode(data).decode()
+
 # Sidebar for Setup
 with st.sidebar:
-    st.image("https://cdn-icons-png.flaticon.com/512/2103/2103633.png", width=50)
-    st.title("Hackalytics Config")
-    
-    # Keys loaded from .env
+    # Try to verify keys exist
     groq_key = os.getenv("GROQ_API_KEY")
     gemini_key = os.getenv("GEMINI_API_KEY")
     
+    st.markdown("<h3 style='color: var(--neon-cyan);'>SYSTEM ID</h3>", unsafe_allow_html=True)
+    
     if groq_key and gemini_key:
-        st.success("API Keys Loaded ✅")
+        st.success("ACCESS GRANTED ✅")
     else:
-        st.error("Missing API Keys in .env")
-        st.info("Please add GROQ_API_KEY and GEMINI_API_KEY to your .env file.")
+        st.error("ACCESS DENIED ❌")
+        st.info("Please add keys to .env")
     
     st.markdown("---")
-    st.markdown("### How it Works")
-    st.info("Uses RAG (FAISS + Gemini Embeddings) for Novelty. Uses Gemini 1.5 Pro for Design. Uses Groq (Llama 3) for Tech & Viability.")
+    st.markdown("### PROTOCOL")
+    st.info("Scanning for Novelty, Tech Stack, and Visual Patterns.")
 
-# Main Layout
-st.title("🏆 Hackalytics: AI Project Judge")
-st.markdown("### Evaluate your hackathon idea against thousands of winners.")
+# Render Hero
+try:
+    img_b64 = get_base64_of_bin_file("frontend/assets/robotic_face.png")
+    st.markdown(
+        f'<img src="data:image/png;base64,{img_b64}" class="robotic-hero">',
+        unsafe_allow_html=True
+    )
+except FileNotFoundError:
+    st.warning("⚠️ Asset missing: robotic_face.png")
+
+st.markdown("<h1 style='text-align: center; color: white;'>HACKALYTICS_V2.0</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #00F2FF; letter-spacing: 4px; font-family: Orbitron;'>AI JUDGEMENT SYSTEM_ONLINE</p>", unsafe_allow_html=True)
 
 col1, col2 = st.columns([1, 1])
 
 with col1:
-    st.subheader("Project Details")
-    project_desc = st.text_area("Project Description & Pitch", height=200, placeholder="Describe your project, the problem it solves, and its features...")
-    tech_stack = st.text_area("Technical Stack", height=100, placeholder="e.g., Python, Streamlit, LangChain, FAISS, Gemini...")
+    st.subheader("INPUT_DATA_STREAM")
+    project_desc = st.text_area("Project Description", height=200, placeholder="Initialize project parameters...")
+    tech_stack = st.text_area("Tech Stack", height=100, placeholder="Define system dependencies...")
 
 with col2:
-    st.subheader("Visuals (Optional)")
-    uploaded_file = st.file_uploader("Upload UI Screenshot", type=["jpg", "jpeg", "png"])
+    st.subheader("VISUAL_INPUT")
+    uploaded_file = st.file_uploader("Upload Interface", type=["jpg", "jpeg", "png"])
     if uploaded_file:
-        st.image(uploaded_file, caption="Uploaded UI", use_column_width=True)
+        st.image(uploaded_file, caption="Visual Data Received", use_column_width=True)
         # Save temp file for evaluator
         with open("temp_image.png", "wb") as f:
             f.write(uploaded_file.getbuffer())
@@ -230,14 +222,14 @@ with col2:
 def get_evaluator(groq_key, gemini_key):
     return Evaluator(groq_api_key=groq_key, gemini_api_key=gemini_key)
 
-if st.button("Evaluate Project 🚀", type="primary"):
+if st.button("EXECUTE EVALUATION 🚀", type="primary"):
     if not groq_key or not gemini_key:
-        st.error("Missing API Keys. Please check your .env file.")
+        st.error("MISSING CREDENTIALS")
     elif not project_desc or not tech_stack:
-        st.warning("Please provide both a description and a tech stack.")
+        st.warning("INSUFFICIENT DATA")
     else:
         try:
-            with st.spinner("Crunching numbers... checking novelty... analyzing UI..."):
+            with st.spinner("PROCESSING..."):
                 evaluator = get_evaluator(groq_key, gemini_key)
                 results = evaluator.audit_project(project_desc, tech_stack, image_path)
                 
@@ -251,13 +243,13 @@ if st.button("Evaluate Project 🚀", type="primary"):
             # Top Level Score
             score_col1, score_col2 = st.columns([1, 2])
             with score_col1:
-                st.metric(label="Total Score (S_total)", value=f"{results['S_total']:.1f} / 10")
+                st.metric(label="TOTAL SCORE", value=f"{results['S_total']:.1f} / 10")
                 if results['S_total'] >= 8.5:
-                    st.success("Potential Winner! 🏆")
+                    st.success("EXCEPTIONAL")
                 elif results['S_total'] >= 6.0:
-                    st.warning("Strong Contender 🥈")
+                    st.warning("OPTIMIZATION REQUIRED")
                 else:
-                    st.error("Needs Improvement 🛠️")
+                    st.error("CRITICAL FAILURE")
             
             with score_col2:
                 # Radar Chart
@@ -272,14 +264,22 @@ if st.button("Evaluate Project 🚀", type="primary"):
                     r=values,
                     theta=categories,
                     fill='toself',
-                    name='Project Score'
+                    name='Project Score',
+                    line=dict(color='#00F2FF'),
+                    fillcolor='rgba(0, 242, 255, 0.2)'
                 ))
                 fig.update_layout(
+                    paper_bgcolor='rgba(0,0,0,0)',
+                    plot_bgcolor='rgba(0,0,0,0)',
+                    font=dict(color='white', family="Orbitron"),
                     polar=dict(
                         radialaxis=dict(
                             visible=True,
-                            range=[0, 10]
-                        )),
+                            range=[0, 10],
+                            tickfont=dict(color='white')
+                        ),
+                        bgcolor='rgba(255,255,255,0.05)'
+                    ),
                     showlegend=False,
                     height=350,
                     margin=dict(l=40, r=40, t=20, b=20)
@@ -287,7 +287,7 @@ if st.button("Evaluate Project 🚀", type="primary"):
                 st.plotly_chart(fig, use_container_width=True)
 
             # Detailed Breakdown
-            st.subheader("🔍 AI Implementation Breakdown (S_ai)")
+            st.subheader("🔍 LOGS: AI_BREAKDOWN")
             ai_breakdown = results['ai_breakdown']
             
             ai_cols = st.columns(4)
@@ -296,17 +296,17 @@ if st.button("Evaluate Project 🚀", type="primary"):
             ai_cols[2].metric("Fine-Tuning", f"{ai_breakdown['I_ft']}/5")
             ai_cols[3].metric("Safety", f"{ai_breakdown['I_safety']}/5")
             
-            st.info(f"**AI Reasoning:** {results['reasoning']['ai']}")
+            st.info(f"**ANALYSIS:** {results['reasoning']['ai']}")
 
             # Other Reasonings
-            with st.expander("See General Analysis (Tech, Impact, Viability)"):
+            with st.expander("VIEW: GENERAL_ANALYSIS"):
                 st.write(results['reasoning']['general'])
                 
-            with st.expander("See Design Analysis (S_des)"):
+            with st.expander("VIEW: DESIGN_ANALYSIS"):
                 st.write(results['reasoning']['design'])
 
             # Similarity Check
-            st.subheader("📚 Top 3 Similar Past Winners (Novelty Context)")
+            st.subheader("📚 RELEVANT ARCHIVES")
             similar_projects = results.get('similar_projects', [])
             if similar_projects:
                 for i, proj in enumerate(similar_projects[:3]):
@@ -314,12 +314,11 @@ if st.button("Evaluate Project 🚀", type="primary"):
                         st.markdown(f"**{i+1}. {proj['title']}** (Similarity: {proj['similarity']:.2f})")
                         st.caption(proj['description'][:200] + "...")
                         if proj['url']:
-                            st.markdown(f"[View Project]({proj['url']})")
+                            st.markdown(f"[ACCESS DATA]({proj['url']})")
                         st.divider()
             else:
-                st.write("No similar projects found.")
+                st.write("NO MATCHES FOUND.")
 
         except Exception as e:
-            st.error(f"An error occurred during evaluation: {str(e)}")
+            st.error(f"SYSTEM ERROR: {str(e)}")
             st.exception(e)
-

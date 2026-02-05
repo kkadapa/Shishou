@@ -68,5 +68,43 @@ hackalytics/
 └── README.md
 ```
 
+## 🏗️ Architecture
+```mermaid
+graph TD
+    subgraph Frontend
+        UI[Streamlit Interface] -->|User Input| Inputs{Project Data}
+        style UI fill:#0A0A0A,stroke:#00F2FF,color:#fff
+    end
+
+    subgraph Backend_Processing
+        Inputs -->|Description + Stack| Embed[Gemini Embeddings]
+        Inputs -->|UI Screenshot| Vision[Gemini Vision Model]
+        Inputs -->|Text Data| LLM[Groq Llama 3]
+
+        subgraph RAG_System
+            DB[(Hackathon Dataset)] -->|Pre-computed| Index[FAISS Vector Store]
+            Embed -->|Query Vector| Index
+            Index -->|Retrieve Similar| Sims[Top 3 Similar Projects]
+            Sims -->|Context| NovCalc[Novelty Scorer]
+        end
+
+        subgraph Scoring_Engine
+            Vision -->|Design Analysis| S_Des[Design Score]
+            LLM -->|Tech & Viability| S_Gen[General Scores]
+            NovCalc -->|Uniqueness| S_Nov[Novelty Score]
+        end
+
+        S_Des --> Aggregator[Final Score Aggregator]
+        S_Gen --> Aggregator
+        S_Nov --> Aggregator
+    end
+
+    Aggregator -->|JSON Result| UI
+    
+    style Vision fill:#222,stroke:#FF00E5,color:#fff
+    style LLM fill:#222,stroke:#00F2FF,color:#fff
+    style Index fill:#222,stroke:#00F2FF,color:#fff
+```
+
 ## 📄 License
 MIT
