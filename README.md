@@ -1,5 +1,7 @@
 # 🤖 Shishou: AI Project Judge
 
+![Shishou Demo](Shishou-demo.png)
+
 Shishou is an intelligent hackathon assistant that evaluates project ideas against thousands of past hackathon winners. It uses a multi-modal approach to score projects on **Novelty**, **Technical Complexity**, **Viability**, and **Design**.
 
 ## ✨ Features
@@ -23,8 +25,8 @@ Shishou is an intelligent hackathon assistant that evaluates project ideas again
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/yourusername/hackalytics.git
-cd hackalytics
+git clone https://github.com/kkadapa/Shishou.git
+cd Shishou
 ```
 
 ### 2. Install Dependencies
