@@ -53,9 +53,9 @@ We learned the immense value of **RAG (Retrieval-Augmented Generation)** for val
 - **Backend**: Python, LangChain
 - **AI Models**:
     - **Reasoning**: Llama 3.3 70B (Groq)
-    - **Embeddings**: Text-Embedding-004 (Gemini)
-    - **Vision**: Gemini 1.5 Pro (Google)
-- **Vector Database**: FAISS
+    - **Vision**: Llama 4 Scout (17B Multimodal via Groq)
+    - **Embeddings**: `all-MiniLM-L6-v2` (Local HuggingFace) - Free & Unlimited.
+- **Vector Database**: FAISS (Stores 10k+ projects locally)
 
 ## 🚀 Getting Started
 

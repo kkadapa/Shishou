@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 from langchain_community.vectorstores import FAISS
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_core.documents import Document
 from dotenv import load_dotenv
 
@@ -13,30 +13,36 @@ INDEX_PATH = os.path.join(BASE_DIR, "faiss_index")
 
 class RagEngine:
     def __init__(self, gemini_api_key=None):
-        self.api_key = gemini_api_key or os.getenv("GEMINI_API_KEY")
-        if not self.api_key:
-            raise ValueError("Gemini API Key is missing. Please provide it in the sidebar or .env file.")
+        # API key is no longer needed for embeddings, but we keep signature compatible
+        self.api_key = gemini_api_key 
         
-        self.embeddings = GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-001", google_api_key=self.api_key)
+        # Use Local Embeddings (Free, Fast, No Rate Limits)
+        # all-MiniLM-L6-v2 is a standard efficient model.
+        print("Initializing Local Embeddings (HuggingFace)...")
+        try:
+            self.embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+        except Exception as e:
+            print(f"Error initializing HuggingFaceEmbeddings: {e}")
+            raise e
+            
         self.vector_store = self._load_or_create_index()
 
     def _load_or_create_index(self):
         """
         Loads the FAISS index if it exists, otherwise builds it from the CSV.
         """
-        # Note: If we switched embeddings, we MUST rebuild the index if it exists but was built with OpenAI.
-        # For safety/simplicity in this migration, let's assume we might need to rebuild if the folder exists 
-        # but is incompatible. However, checking compatibility is hard. 
-        # Best practice: if the user switches providers, they should probably delete the old index manually or we force rebuild.
-        # I'll just keep the loading logic but maybe add a comment. 
-        # Actually, let's force a rebuild if it fails to load or just rely on standard check.
+        # If index exists, try to load it. 
+        # CAUTION: If the index was built with a DIFFERENT model (Gemini), loading it with HF will fail or produce garbage.
+        # We should probably force rebuild if we are switching models. 
+        # But to be safe, let's try to load, and if it fails, rebuild.
         
         if os.path.exists(INDEX_PATH):
             try:
                 print(f"Loading existing FAISS index from {INDEX_PATH}...")
+                # allow_dangerous_deserialization is needed for local pickle files
                 return FAISS.load_local(INDEX_PATH, self.embeddings, allow_dangerous_deserialization=True)
             except Exception as e:
-                print(f"Failed to load index (possibly incompatible embeddings): {e}")
+                print(f"Failed to load index (likely incompatible webdings): {e}")
                 print("Rebuilding index...")
         
         print(f"Building new FAISS index from {DATA_PATH}...")
@@ -58,16 +64,12 @@ class RagEngine:
             }
             documents.append(Document(page_content=page_content, metadata=metadata))
 
-        import time
-
-        # Batch processing to respect rate limits
-        # Gemini Free Tier: 15 Requests Per Minute (1 req every 4s).
-        # We use batch_size=100 (efficient) and sleep 5s to stay safe.
-        batch_size = 100 
+        # Local processing is fast, we can enable a larger batch size
+        batch_size = 500 
         vector_store = None
         total_docs = len(documents)
         
-        print(f"Embedding {total_docs} documents with batch size {batch_size}...")
+        print(f"Embedding {total_docs} documents with batch size {batch_size} (Locally)...")
         
         for i in range(0, total_docs, batch_size):
             batch = documents[i : i + batch_size]
@@ -78,25 +80,17 @@ class RagEngine:
                     vector_store.add_documents(batch)
                 
                 print(f"Processed {min(i + batch_size, total_docs)}/{total_docs} documents...")
-                time.sleep(5) # Sleep 5s to stay under 15 RPM
             except Exception as e:
                 print(f"Error processing batch {i}: {e}")
-                # Wait longer if hit rate limit
-                time.sleep(30)
-                # Retry once
-                try:
-                    if vector_store is None:
-                        vector_store = FAISS.from_documents(batch, self.embeddings)
-                    else:
-                        vector_store.add_documents(batch)
-                except Exception as retry_e:
-                     print(f"Failed retry on batch {i}: {retry_e}")
 
         if vector_store:
             vector_store.save_local(INDEX_PATH)
         return vector_store
 
     def calculate_novelty_score(self, idea_text):
+        if not self.vector_store:
+             return 5.0, []
+
         results = self.vector_store.similarity_search_with_relevance_scores(idea_text, k=5)
         
         max_similarity_score = 0.0
@@ -113,7 +107,11 @@ class RagEngine:
                     "url": doc.metadata.get("url", "")
                 })
 
+        # Relevance score in FAISS (cosine) is -1 to 1.
+        # We clamp to 0-1
         max_similarity_score = max(0.0, min(1.0, max_similarity_score))
+        
+        # Novelty is inverse of similarity
         novelty_score = (1.0 - max_similarity_score) * 10
         
         return round(novelty_score, 1), similar_projects

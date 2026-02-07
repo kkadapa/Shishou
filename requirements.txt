@@ -8,5 +8,6 @@ faiss-cpu
 plotly
 python-dotenv
 pillow
-google-generativeai
+
 watchdog
+sentence-transformers

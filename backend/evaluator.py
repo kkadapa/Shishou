@@ -1,6 +1,6 @@
 import os
 import json
-import google.generativeai as genai
+
 from langchain_groq import ChatGroq
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
@@ -23,29 +23,30 @@ class GeneralScores(BaseModel):
     S_via: int = Field(description="Viability score (1-10)")
     reasoning: str = Field(description="Brief reasoning for these scores")
 
-class Evaluator:
-    def __init__(self, groq_api_key, gemini_api_key):
-        self.rag_engine = RagEngine(gemini_api_key=gemini_api_key)
-        self.groq_api_key = groq_api_key
-        self.gemini_api_key = gemini_api_key
-        
-        # Initialize Gemini
-        if gemini_api_key:
-            genai.configure(api_key=gemini_api_key)
-            self.vision_model = genai.GenerativeModel('gemini-1.5-pro')
-        else:
-            self.vision_model = None
+import base64
+from langchain_core.messages import HumanMessage
 
-        # Initialize Groq
+class Evaluator:
+    def __init__(self, groq_api_key):
+        # Gemini Key removed. RAG Engine now uses Local Embeddings, so no key needed there either.
+        self.rag_engine = RagEngine() 
+        self.groq_api_key = groq_api_key
+        
+        if not groq_api_key:
+            raise ValueError("Groq API Key is required.")
+
+        # Initialize Groq for Text
         self.llm = ChatGroq(model_name="llama-3.3-70b-versatile", temperature=0.0, groq_api_key=groq_api_key)
+        
+        # Initialize Groq for Vision
+        # Using Llama 4 Scout (Vision/Multimodal)
+        # Full ID required: meta-llama/llama-4-scout-17b-16e-instruct
+        self.vision_model = ChatGroq(model_name="meta-llama/llama-4-scout-17b-16e-instruct", temperature=0.0, groq_api_key=groq_api_key)
 
     def analyze_text_components(self, description, tech_stack):
         """
         Uses LLM to extract AI sub-scores and General scores.
         """
-        parser_ai = JsonOutputParser(pydantic_object=AISubs)
-        parser_gen = JsonOutputParser(pydantic_object=GeneralScores)
-
         prompt_text = f"""
         Analyze the following Hackathon Project:
         
@@ -85,12 +86,7 @@ class Evaluator:
         }}
         """
         
-        # We can combine into one prompt for efficiency or split. Let's do one.
-        # But for strict strict typing, let's use a combined structure or just parse dict.
-        
         response = self.llm.invoke(prompt_text)
-        
-        # Naive extraction if content is string, but ChatOpenAI returns BaseMessage
         content = response.content
         
         # Clean markdown code blocks if present
@@ -112,16 +108,31 @@ class Evaluator:
 
     def analyze_design(self, image_path):
         """
-        Uses Gemini 1.5 Pro to analyze UI.
+        Uses Groq (Llama 3.2 Vision) to analyze UI.
         """
-        if not image_path or not self.vision_model:
-            return 5.0, "No image provided or Gemini Key missing. Defaulting to 5."
+        if not image_path:
+            return 5.0, "No image provided."
 
         try:
-            img = PIL.Image.open(image_path)
+            # Encode image to base64
+            def encode_image(image_path):
+                with open(image_path, "rb") as image_file:
+                    return base64.b64encode(image_file.read()).decode('utf-8')
+            
+            base64_image = encode_image(image_path)
+            
             prompt = "Rate this UI (1-10) on hierarchy, accessibility, and polish. Return ONLY the number."
-            response = self.vision_model.generate_content([prompt, img])
-            text = response.text.strip()
+            
+            message = HumanMessage(
+                content=[
+                    {"type": "text", "text": prompt},
+                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}},
+                ]
+            )
+            
+            response = self.vision_model.invoke([message])
+            text = response.content.strip()
+            
             # Extract number
             import re
             match = re.search(r'\d+(\.\d+)?', text)
@@ -129,9 +140,9 @@ class Evaluator:
                 score = float(match.group())
                 return min(10.0, max(1.0, score)), text
             else:
-                return 5.0, "Could not extract score from Gemini response: " + text
+                return 5.0, "Could not extract score from Groq response: " + text
         except Exception as e:
-            print(f"Gemini Error: {e}")
+            print(f"Groq Vision Error: {e}")
             return 5.0, f"Error analyzing image: {str(e)}"
 
     def audit_project(self, description, tech_stack, image_path=None):

@@ -170,17 +170,21 @@ def get_base64_of_bin_file(bin_file):
 
 # Sidebar for Setup
 with st.sidebar:
-    # Try to verify keys exist
-    groq_key = os.getenv("GROQ_API_KEY")
-    gemini_key = os.getenv("GEMINI_API_KEY")
+    st.sidebar.header("🔑 API CONFIGURATION")
     
+    # GROQ API KEY
+    groq_key = st.sidebar.text_input("GROQ API KEY", type="password", help="Required for Reasoning & Vision (gsk_...)")
+    if not groq_key:
+        groq_key = os.getenv("GROQ_API_KEY")
+
     st.markdown("<h3 style='color: var(--neon-cyan);'>SYSTEM ID</h3>", unsafe_allow_html=True)
     
-    if groq_key and gemini_key:
+    if groq_key:
         st.success("ACCESS GRANTED ✅")
     else:
         st.error("ACCESS DENIED ❌")
-        st.info("Please add keys to .env")
+        st.info("Please add GROQ_API_KEY to .env or enter it above.")
+        st.stop() # Stop execution if key is missing
     
     st.markdown("---")
     st.markdown("### PROTOCOL")
@@ -220,24 +224,24 @@ with col2:
         image_path = None
 
 @st.cache_resource
-def get_evaluator(groq_key, gemini_key):
+def get_evaluator(groq_key):
     with st.status("INITIALIZING AI SYSTEMS...", expanded=True) as status:
         st.write("🔌 Connecting to Groq Inference Engine...")
-        st.write("👁️  Calibrating Gemini Vision Models...")
+        st.write("👁️  Calibrating Groq Vision Models...")
         st.write("📂 Loading Vector Database Indices...")
-        evaluator = Evaluator(groq_api_key=groq_key, gemini_api_key=gemini_key)
+        evaluator = Evaluator(groq_api_key=groq_key)
         status.update(label="SYSTEMS ONLINE", state="complete", expanded=False)
     return evaluator
 
 if st.button("EXECUTE EVALUATION 🚀", type="primary"):
-    if not groq_key or not gemini_key:
+    if not groq_key:
         st.error("MISSING CREDENTIALS")
     elif not project_desc or not tech_stack:
         st.warning("INSUFFICIENT DATA")
     else:
         try:
-            with st.spinner("PROCESSING..."):
-                evaluator = get_evaluator(groq_key, gemini_key)
+            with st.spinner("🧠 ANALYZING PROJECT..."):
+                evaluator = get_evaluator(groq_key)
                 results = evaluator.audit_project(project_desc, tech_stack, image_path)
                 
                 # Cleanup temp image
