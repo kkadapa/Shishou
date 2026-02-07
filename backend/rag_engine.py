@@ -17,7 +17,7 @@ class RagEngine:
         if not self.api_key:
             raise ValueError("Gemini API Key is missing. Please provide it in the sidebar or .env file.")
         
-        self.embeddings = GoogleGenerativeAIEmbeddings(model="models/text-embedding-004", google_api_key=self.api_key)
+        self.embeddings = GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-001", google_api_key=self.api_key)
         self.vector_store = self._load_or_create_index()
 
     def _load_or_create_index(self):
