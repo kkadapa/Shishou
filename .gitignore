@@ -41,5 +41,5 @@ ENV/
 *.swp
 
 # Project Specific
-backend/faiss_index/
+
 temp_image.png

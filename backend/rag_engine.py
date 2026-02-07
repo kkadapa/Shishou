@@ -44,7 +44,7 @@ class RagEngine:
             raise FileNotFoundError(f"Data file not found at {DATA_PATH}")
 
         df = pd.read_csv(DATA_PATH)
-        df.fillna("", inplace=True)
+        df = df.fillna("")
 
         documents = []
         for _, row in df.iterrows():

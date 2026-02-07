@@ -221,7 +221,13 @@ with col2:
 
 @st.cache_resource
 def get_evaluator(groq_key, gemini_key):
-    return Evaluator(groq_api_key=groq_key, gemini_api_key=gemini_key)
+    with st.status("INITIALIZING AI SYSTEMS...", expanded=True) as status:
+        st.write("🔌 Connecting to Groq Inference Engine...")
+        st.write("👁️  Calibrating Gemini Vision Models...")
+        st.write("📂 Loading Vector Database Indices...")
+        evaluator = Evaluator(groq_api_key=groq_key, gemini_api_key=gemini_key)
+        status.update(label="SYSTEMS ONLINE", state="complete", expanded=False)
+    return evaluator
 
 if st.button("EXECUTE EVALUATION 🚀", type="primary"):
     if not groq_key or not gemini_key:

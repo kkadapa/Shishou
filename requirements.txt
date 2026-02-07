@@ -9,3 +9,4 @@ plotly
 python-dotenv
 pillow
 google-generativeai
+watchdog
