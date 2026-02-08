@@ -173,9 +173,18 @@ with st.sidebar:
     st.sidebar.header("🔑 API CONFIGURATION")
     
     # GROQ API KEY
-    groq_key = st.sidebar.text_input("GROQ API KEY", type="password", help="Required for Reasoning & Vision (gsk_...)")
-    if not groq_key:
-        groq_key = os.getenv("GROQ_API_KEY")
+    env_groq_key = os.getenv("GROQ_API_KEY")
+    
+    if env_groq_key:
+        st.sidebar.success("✅ GROQ_API_KEY LOADED")
+        groq_key = env_groq_key
+        # Optional override
+        with st.sidebar.expander("Change API Key"):
+            new_key = st.text_input("Override Key", type="password")
+            if new_key:
+                groq_key = new_key
+    else:
+        groq_key = st.sidebar.text_input("GROQ API KEY", type="password", help="Required for Reasoning & Vision (gsk_...)")
 
     st.markdown("<h3 style='color: var(--neon-cyan);'>SYSTEM ID</h3>", unsafe_allow_html=True)
     
