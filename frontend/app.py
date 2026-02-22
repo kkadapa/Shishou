@@ -234,13 +234,7 @@ with col2:
 
 @st.cache_resource
 def get_evaluator(groq_key):
-    with st.status("INITIALIZING AI SYSTEMS...", expanded=True) as status:
-        st.write("🔌 Connecting to Groq Inference Engine...")
-        st.write("👁️  Calibrating Groq Vision Models...")
-        st.write("📂 Loading Vector Database Indices...")
-        evaluator = Evaluator(groq_api_key=groq_key)
-        status.update(label="SYSTEMS ONLINE", state="complete", expanded=False)
-    return evaluator
+    return Evaluator(groq_api_key=groq_key)
 
 if st.button("EXECUTE EVALUATION 🚀", type="primary"):
     if not groq_key:
@@ -249,8 +243,14 @@ if st.button("EXECUTE EVALUATION 🚀", type="primary"):
         st.warning("INSUFFICIENT DATA")
     else:
         try:
-            with st.spinner("🧠 ANALYZING PROJECT..."):
+            with st.status("INITIALIZING AI SYSTEMS...", expanded=True) as status:
+                st.write("🔌 Connecting to Groq Inference Engine...")
+                st.write("👁️  Calibrating Groq Vision Models...")
+                st.write("📂 Loading Vector Database Indices...")
                 evaluator = get_evaluator(groq_key)
+                status.update(label="SYSTEMS ONLINE", state="complete", expanded=False)
+
+            with st.spinner("🧠 ANALYZING PROJECT..."):
                 results = evaluator.audit_project(project_desc, tech_stack, image_path)
                 
                 # Cleanup temp image
