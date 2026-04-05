@@ -117,20 +117,20 @@ graph TD
     end
 
     subgraph Backend_Processing
-        Inputs -->|Description + Stack| Embed[Gemini Embeddings]
-        Inputs -->|UI Screenshot| Vision[Gemini Vision Model]
-        Inputs -->|Text Data| LLM[Groq Llama 3]
+        Inputs -->|Description + Stack| Embed["HuggingFace Embeddings\n(all-MiniLM-L6-v2 · Local)"]
+        Inputs -->|UI Screenshot| Vision["Groq Vision Model\n(Llama 4 Scout 17B)"]
+        Inputs -->|Text Data| LLM["Groq LLM\n(Llama 3.3 70B)"]
 
         subgraph RAG_System
             DB[(Hackathon Dataset)] -->|Pre-computed| Index[FAISS Vector Store]
             Embed -->|Query Vector| Index
-            Index -->|Retrieve Similar| Sims[Top 3 Similar Projects]
+            Index -->|Retrieve Similar| Sims[Top 5 Similar Projects]
             Sims -->|Context| NovCalc[Novelty Scorer]
         end
 
         subgraph Scoring_Engine
             Vision -->|Design Analysis| S_Des[Design Score]
-            LLM -->|Tech & Viability| S_Gen[General Scores]
+            LLM -->|Tech & Viability & AI Sub-scores| S_Gen[General Scores]
             NovCalc -->|Uniqueness| S_Nov[Novelty Score]
         end
 
@@ -140,7 +140,8 @@ graph TD
     end
 
     Aggregator -->|JSON Result| UI
-    
+
+    style Embed fill:#222,stroke:#7CFF7C,color:#fff
     style Vision fill:#222,stroke:#FF00E5,color:#fff
     style LLM fill:#222,stroke:#00F2FF,color:#fff
     style Index fill:#222,stroke:#00F2FF,color:#fff
